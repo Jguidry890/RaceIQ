@@ -1,1 +1,201 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="apple-mobile-web-app-capable" content="yes"><title>RaceIQ Free</title><style>body{background:#101722;color:#eaf0fa;font:16px system-ui;margin:0}main{max-width:520px;margin:auto;padding:28px 20px}h1{font-size:36px;margin:0}p{color:#aebed1;line-height:1.5}label{display:block;margin:20px 0 8px}input,select,button{box-sizing:border-box;width:100%;padding:14px;border-radius:10px;font:inherit;border:1px solid #45566e;background:#202c3c;color:white}button{background:#2864bd;border:0;font-weight:bold;margin-top:20px}small{color:#aebed1}section{background:#182333;padding:20px;border-radius:16px;margin-top:20px}textarea{width:100%;box-sizing:border-box;background:#202c3c;color:white;min-height:160px;border-radius:8px;padding:10px}</style><main><h1>RaceIQ</h1><p>Free • Racing research launcher</p><section><form id="f"><label for="date">Race date</label><input id="date" type="date" required><label for="track">Racetrack</label><input id="track" placeholder="e.g. Zia Park" required><label for="race">Race number</label><input id="race" type="number" min="1" max="30" value="1" required><label for="history">Historical races</label><select id="history"><option>10</option><option>5</option><option>20</option></select><button>Prepare research</button></form></section><section id="out" hidden><h2>Research request</h2><textarea id="prompt" readonly></textarea><button id="open">Open in ChatGPT</button><button id="copy">Copy request</button><p id="status" role="status"></p></section><p>Uses ChatGPT for public-source research. No live feed, paid API, or guaranteed data coverage. Research results appear in ChatGPT, not this launcher.</p></main><script>const $=id=>document.getElementById(id);let d=new Date();$('date').value=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');$('f').onsubmit=e=>{e.preventDefault();$('prompt').value=`Research ${$('track').value.trim()}, race ${$('race').value}, on ${$('date').value}. Use Equibase first and other reliable public sources for verification. Retrieve all entrants, scratches, timestamped odds, last ${$('history').value} pre-race finishes and speed ratings, class, surface, distance, pedigree, career records, jockey and trainer statistics. Organize by horse and create combined finishing-position and speed-rating graphs using comparable rating systems. Cite sources and identify missing data. Do not fabricate statistics or treat historical rates as predicted probabilities.`;$('out').hidden=false;};$('open').onclick=()=>location.href='https://chatgpt.com/?q='+encodeURIComponent($('prompt').value);$('copy').onclick=async()=>{try{await navigator.clipboard.writeText($('prompt').value);$('status').textContent='Copied.'}catch(e){$('prompt').select();$('status').textContent='Select and copy the request manually.'}};</script></html>
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RaceIQ</title>
+<style>
+*{box-sizing:border-box}
+body{background:#0b1220;color:#eef2ff;font-family:system-ui;margin:0;padding:20px}
+main{max-width:900px;margin:auto}
+h1{color:#4ade80;font-size:36px;margin-bottom:0}
+p{color:#a5b4cc}
+.panel{background:#162033;border:1px solid #334155;border-radius:14px;padding:18px;margin:16px 0}
+label{display:block;margin:12px 0 6px;font-weight:600}
+input,select,button{width:100%;padding:14px;border-radius:8px;font-size:16px}
+input,select{background:#0b1220;color:white;border:1px solid #475569}
+button{background:#4ade80;color:#052e16;font-weight:bold;border:0;margin-top:14px}
+button:disabled{opacity:.5}
+.horse{background:#162033;border:1px solid #334155;border-radius:12px;padding:16px;margin:12px 0}
+.horse h3{color:#4ade80;margin-top:0}
+.stat{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #334155}
+#status{white-space:pre-wrap;overflow-wrap:anywhere}
+small{color:#94a3b8}
+</style>
+</head>
+<body>
+<main>
+<h1>RaceIQ</h1>
+<p>Horse Racing Analytics</p>
+
+<div class="panel">
+<label>Private access password</label>
+<input id="password" type="password" autocomplete="off" placeholder="Enter RaceIQ password">
+
+<label>Race date</label>
+<input id="date" type="date">
+
+<button id="load">Load Race Cards</button>
+<p id="status">Ready to connect.</p>
+
+<label>Racetrack</label>
+<select id="track"></select>
+
+<label>Race</label>
+<select id="race"></select>
+
+<button id="horses">Load Horses</button>
+</div>
+
+<div id="details"></div>
+<div id="results"></div>
+
+<small>Source: SportStatsAPI. Data may be delayed. Historical speed figures and past performances are not yet connected.</small>
+</main>
+
+<script>
+const API="https://raceiq-api.guidryjoseph890.workers.dev";
+const el=id=>document.getElementById(id);
+let races=[];
+
+const today=new Date();
+el("date").value=[
+today.getFullYear(),
+String(today.getMonth()+1).padStart(2,"0"),
+String(today.getDate()).padStart(2,"0")
+].join("-");
+
+function status(message){
+el("status").textContent=message;
+}
+
+async function request(path){
+const password=el("password").value.trim();
+if(!password)throw new Error("Enter your RaceIQ password.");
+
+const response=await fetch(API+path,{
+headers:{Authorization:"Bearer "+password}
+});
+
+const json=await response.json();
+
+if(!response.ok || json.success===false){
+throw new Error(
+json.error?.message ||
+JSON.stringify(json.error || json)
+);
+}
+
+if(!Array.isArray(json.data)){
+throw new Error("Unexpected API response: "+JSON.stringify(json));
+}
+
+return json.data;
+}
+
+function option(select,value,label){
+const item=document.createElement("option");
+item.value=value;
+item.textContent=label;
+select.appendChild(item);
+}
+
+function stat(parent,label,value){
+const row=document.createElement("div");
+row.className="stat";
+const a=document.createElement("span");
+const b=document.createElement("strong");
+a.textContent=label;
+b.textContent=value??"Unavailable";
+row.append(a,b);
+parent.appendChild(row);
+}
+
+function updateRaces(){
+el("race").replaceChildren();
+el("results").replaceChildren();
+el("details").replaceChildren();
+
+races.filter(r=>r.meeting?.name===el("track").value)
+.forEach(r=>option(el("race"),r.code,r.race_name||r.code));
+}
+
+el("track").onchange=updateRaces;
+
+el("load").onclick=async()=>{
+el("load").disabled=true;
+el("track").replaceChildren();
+el("race").replaceChildren();
+el("results").replaceChildren();
+el("details").replaceChildren();
+
+try{
+status("Connecting to racing database...");
+races=await request("/races?date="+encodeURIComponent(el("date").value));
+
+const tracks=[...new Set(races.map(r=>r.meeting?.name).filter(Boolean))].sort();
+
+tracks.forEach(t=>option(el("track"),t,t));
+updateRaces();
+
+status(races.length+" races retrieved across "+tracks.length+" tracks.");
+}catch(e){
+status("Error: "+e.message);
+}finally{
+el("load").disabled=false;
+}
+};
+
+el("horses").onclick=async()=>{
+const race=races.find(r=>r.code===el("race").value);
+if(!race){status("Select a race first.");return;}
+
+el("horses").disabled=true;
+el("results").replaceChildren();
+el("details").replaceChildren();
+
+try{
+status("Retrieving entered horses...");
+
+const info=document.createElement("div");
+info.className="panel";
+stat(info,"Track",race.meeting?.name);
+stat(info,"Race",race.race_name);
+stat(info,"Distance",race.distance);
+stat(info,"Surface",race.surface);
+stat(info,"Purse",race.purse);
+stat(info,"Class",race.race_type?.label);
+el("details").appendChild(info);
+
+const runners=await request("/races/"+encodeURIComponent(race.code)+"/runners");
+
+runners.forEach(h=>{
+const card=document.createElement("div");
+card.className="horse";
+const title=document.createElement("h3");
+title.textContent="#"+(h.number??"?")+" "+(h.horse_name||"Unknown horse");
+card.appendChild(title);
+
+stat(card,"Status",h.status);
+stat(card,"Jockey",h.jockey?.name);
+stat(card,"Trainer",h.trainer?.name);
+stat(card,"Weight",h.weight);
+stat(card,"Morning line",h.morning_line?.fractional);
+stat(card,"Decimal odds",h.morning_line?.decimal);
+stat(card,"Last updated",h.updated_at);
+
+el("results").appendChild(card);
+});
+
+status(runners.length+" horse entries retrieved.");
+}catch(e){
+status("Error: "+e.message);
+}finally{
+el("horses").disabled=false;
+}
+};
+</script>
+</body>
+</html>
+
