@@ -1,43 +1,52 @@
- 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RaceIQ</title>
 <style>
 *{box-sizing:border-box}
-body{background:#0b1220;color:#eef2ff;font-family:system-ui;margin:0;padding:20px}
-main{max-width:900px;margin:auto}
-h1{color:#4ade80;font-size:36px;margin-bottom:0}
-p{color:#a5b4cc}
-.panel{background:#162033;border:1px solid #334155;border-radius:14px;padding:18px;margin:16px 0}
+body{background:#0b1220;color:#eef2ff;font-family:system-ui;margin:0;padding:16px}
+main{max-width:1000px;margin:auto}
+h1,h3{color:#4ade80}
+h1{margin-bottom:0}
+p,small{color:#a5b4cc}
+.panel,details{background:#162033;border:1px solid #334155;border-radius:14px;padding:16px;margin:14px 0}
 label{display:block;margin:12px 0 6px;font-weight:600}
-input,select,button{width:100%;padding:14px;border-radius:8px;font-size:16px}
+input,select,button{width:100%;min-width:0;padding:13px;border-radius:8px;font-size:16px}
 input,select{background:#0b1220;color:white;border:1px solid #475569}
 button{background:#4ade80;color:#052e16;font-weight:bold;border:0;margin-top:14px}
 button:disabled{opacity:.5}
-.horse{background:#162033;border:1px solid #334155;border-radius:12px;padding:16px;margin:12px 0}
-.horse h3{color:#4ade80;margin-top:0}
 .stat{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #334155}
-#status{white-space:pre-wrap;overflow-wrap:anywhere}
-small{color:#94a3b8}
+.stat strong{text-align:right;overflow-wrap:anywhere}
+#status{overflow-wrap:anywhere}
+.scroll{overflow:auto}
+table{border-collapse:collapse;width:100%;white-space:nowrap}
+td,th{text-align:left;padding:10px;border-bottom:1px solid #334155}
+summary{cursor:pointer;color:#4ade80;font-weight:bold}
+.barrow{margin:12px 0}
+.bar{background:#4ade80;height:12px;border-radius:4px}
+.track{background:#29364b;border-radius:4px;margin-top:5px}
+.muted{color:#a5b4cc}
+svg{width:100%;height:auto}
+.legend{font-size:12px}
 </style>
 </head>
 <body>
 <main>
 <h1>RaceIQ</h1>
-<p>Horse Racing Analytics</p>
+<p>Horse Racing Analytics - Dashboard 2.0</p>
 
 <div class="panel">
 <label>Private access password</label>
-<input id="password" type="password" autocomplete="off" placeholder="Enter RaceIQ password">
+<input id="password" type="password" autocomplete="off">
 
 <label>Race date</label>
 <input id="date" type="date">
 
 <button id="load">Load Race Cards</button>
-<p id="status">Ready to connect.</p>
+<p id="status" role="status">Ready to connect.</p>
 
 <label>Racetrack</label>
 <select id="track"></select>
@@ -48,154 +57,338 @@ small{color:#94a3b8}
 <button id="horses">Load Horses</button>
 </div>
 
-<div id="details"></div>
 <div id="results"></div>
 
-<small>Source: SportStatsAPI. Data may be delayed. Historical speed figures and past performances are not yet connected.</small>
+<small>
+Source: SportStatsAPI. Data may be delayed.
+Morning-line odds are not live odds or performance ratings.
+Historical data availability depends on provider access.
+</small>
 </main>
 
 <script>
-const API="https://raceiq-api.guidryjoseph890.workers.dev";
-const el=id=>document.getElementById(id);
-let races=[];
+const API =
+"https://raceiq-api.guidryjoseph890.workers.dev";
 
-const today=new Date();
-el("date").value=[
-today.getFullYear(),
-String(today.getMonth()+1).padStart(2,"0"),
-String(today.getDate()).padStart(2,"0")
+const el = id => document.getElementById(id);
+
+let races = [];
+
+const today = new Date();
+
+el("date").value = [
+  today.getFullYear(),
+  String(today.getMonth()+1).padStart(2,"0"),
+  String(today.getDate()).padStart(2,"0")
 ].join("-");
 
-function status(message){
-el("status").textContent=message;
+const status = s => el("status").textContent = s;
+
+function node(tag,text,parent,cls){
+  const n = document.createElement(tag);
+  if(text != null) n.textContent = text;
+  if(cls) n.className = cls;
+  if(parent) parent.append(n);
+  return n;
+}
+
+function panel(title){
+  const p = node("section",null,el("results"),"panel");
+  node("h2",title,p);
+  return p;
+}
+
+function stat(p,k,v){
+  const r = node("div",null,p,"stat");
+  node("span",k,r);
+  node("strong",v ?? "Unavailable",r);
+}
+
+function name(h){
+  return "#"+(h.number ?? "?")+" "+
+    (h.horse_name || "Unknown horse");
 }
 
 async function request(path){
-const password=el("password").value.trim();
-if(!password)throw new Error("Enter your RaceIQ password.");
+  const password = el("password").value.trim();
 
-const response=await fetch(API+path,{
-headers:{Authorization:"Bearer "+password}
-});
+  if(!password)
+    throw Error("Enter your RaceIQ password.");
 
-const json=await response.json();
+  const res = await fetch(API+path,{
+    headers:{
+      Authorization:"Bearer "+password
+    }
+  });
 
-if(!response.ok || json.success===false){
-throw new Error(
-json.error?.message ||
-JSON.stringify(json.error || json)
-);
+  const j = await res.json();
+
+  if(!res.ok || j.success === false)
+    throw Error(
+      j.error?.message ||
+      JSON.stringify(j.error || j)
+    );
+
+  if(!Array.isArray(j.data))
+    throw Error("Unexpected API response");
+
+  return j;
 }
 
-if(!Array.isArray(json.data)){
-throw new Error("Unexpected API response: "+JSON.stringify(json));
+function option(s,v,t){
+  const o = node("option",t,s);
+  o.value = v;
 }
 
-return json.data;
+function update(){
+  el("race").replaceChildren();
+  el("results").replaceChildren();
+
+  races.filter(
+    r => r.meeting?.name === el("track").value
+  ).forEach(
+    r => option(
+      el("race"),
+      r.code,
+      r.race_name || r.code
+    )
+  );
 }
 
-function option(select,value,label){
-const item=document.createElement("option");
-item.value=value;
-item.textContent=label;
-select.appendChild(item);
+el("track").onchange = update;
+
+el("race").onchange = () =>
+  el("results").replaceChildren();
+
+function busy(b){
+  el("load").disabled = b;
+  el("horses").disabled = b;
+  el("track").disabled = b;
+  el("race").disabled = b;
 }
 
-function stat(parent,label,value){
-const row=document.createElement("div");
-row.className="stat";
-const a=document.createElement("span");
-const b=document.createElement("strong");
-a.textContent=label;
-b.textContent=value??"Unavailable";
-row.append(a,b);
-parent.appendChild(row);
-}
+el("load").onclick = async () => {
+  busy(true);
+  races = [];
 
-function updateRaces(){
-el("race").replaceChildren();
-el("results").replaceChildren();
-el("details").replaceChildren();
+  el("track").replaceChildren();
+  el("race").replaceChildren();
+  el("results").replaceChildren();
 
-races.filter(r=>r.meeting?.name===el("track").value)
-.forEach(r=>option(el("race"),r.code,r.race_name||r.code));
-}
+  try{
+    status("Loading race cards...");
 
-el("track").onchange=updateRaces;
+    const j = await request(
+      "/races?date="+
+      encodeURIComponent(el("date").value)
+    );
 
-el("load").onclick=async()=>{
-el("load").disabled=true;
-el("track").replaceChildren();
-el("race").replaceChildren();
-el("results").replaceChildren();
-el("details").replaceChildren();
+    races = j.data;
 
-try{
-status("Connecting to racing database...");
-races=await request("/races?date="+encodeURIComponent(el("date").value));
+    const tracks = [
+      ...new Set(
+        races.map(r => r.meeting?.name)
+        .filter(Boolean)
+      )
+    ].sort();
 
-const tracks=[...new Set(races.map(r=>r.meeting?.name).filter(Boolean))].sort();
+    tracks.forEach(
+      t => option(el("track"),t,t)
+    );
 
-tracks.forEach(t=>option(el("track"),t,t));
-updateRaces();
+    update();
 
-status(races.length+" races retrieved across "+tracks.length+" tracks.");
-}catch(e){
-status("Error: "+e.message);
-}finally{
-el("load").disabled=false;
-}
+    status(
+      races.length+" races retrieved across "+
+      tracks.length+" tracks."+
+      (j.meta?.has_more
+        ? " More pages exist; backend pagination not verified."
+        : "")
+    );
+
+  }catch(e){
+    status("Error: "+e.message);
+  }finally{
+    busy(false);
+  }
 };
 
-el("horses").onclick=async()=>{
-const race=races.find(r=>r.code===el("race").value);
-if(!race){status("Select a race first.");return;}
+function bars(title,hs,get,unit){
+  const p = panel(title);
 
-el("horses").disabled=true;
-el("results").replaceChildren();
-el("details").replaceChildren();
+  const data = hs.map(
+    h => ({h,v:get(h)})
+  ).filter(
+    x => x.v != null &&
+    x.v !== "" &&
+    Number.isFinite(Number(x.v)) &&
+    Number(x.v) >= 0
+  );
 
-try{
-status("Retrieving entered horses...");
+  if(!data.length){
+    node("p","No data available.",p);
+    return;
+  }
 
-const info=document.createElement("div");
-info.className="panel";
-stat(info,"Track",race.meeting?.name);
-stat(info,"Race",race.race_name);
-stat(info,"Distance",race.distance);
-stat(info,"Surface",race.surface);
-stat(info,"Purse",race.purse);
-stat(info,"Class",race.race_type?.label);
-el("details").appendChild(info);
+  const max = Math.max(
+    1,...data.map(x => Number(x.v))
+  );
 
-const runners=await request("/races/"+encodeURIComponent(race.code)+"/runners");
+  data.forEach(({h,v}) => {
+    const r = node("div",null,p,"barrow");
 
-runners.forEach(h=>{
-const card=document.createElement("div");
-card.className="horse";
-const title=document.createElement("h3");
-title.textContent="#"+(h.number??"?")+" "+(h.horse_name||"Unknown horse");
-card.appendChild(title);
+    node("div",name(h)+" - "+v+unit,r);
 
-stat(card,"Status",h.status);
-stat(card,"Jockey",h.jockey?.name);
-stat(card,"Trainer",h.trainer?.name);
-stat(card,"Weight",h.weight);
-stat(card,"Morning line",h.morning_line?.fractional);
-stat(card,"Decimal odds",h.morning_line?.decimal);
-stat(card,"Last updated",h.updated_at);
+    const t = node("div",null,r,"track");
+    const b = node("div",null,t,"bar");
 
-el("results").appendChild(card);
-});
-
-status(runners.length+" horse entries retrieved.");
-}catch(e){
-status("Error: "+e.message);
-}finally{
-el("horses").disabled=false;
+    b.style.width =
+      (100*Number(v)/max)+"%";
+  });
 }
+
+function historical(title){
+  const p = panel(title);
+
+  node(
+    "p",
+    "Unavailable - verified historical performance data is not connected. No values or trends can be plotted yet.",
+    p
+  );
+}
+
+el("horses").onclick = async () => {
+  const race = races.find(
+    r => String(r.code) === el("race").value
+  );
+
+  if(!race){
+    status("Select a race first.");
+    return;
+  }
+
+  busy(true);
+  el("results").replaceChildren();
+
+  try{
+    status("Retrieving entered horses...");
+
+    const hs = (
+      await request(
+        "/races/"+
+        encodeURIComponent(race.code)+
+        "/runners"
+      )
+    ).data;
+
+    const p = panel("Race overview");
+
+    [
+      ["Track",race.meeting?.name],
+      ["Race",race.race_name],
+      ["Distance",race.distance],
+      ["Surface",race.surface],
+      ["Purse",race.purse],
+      ["Class",race.race_type?.label]
+    ].forEach(([k,v]) => stat(p,k,v));
+
+    const q = panel("Horse comparison");
+
+    const t = node(
+      "table",null,
+      node("div",null,q,"scroll")
+    );
+
+    const head = node("tr",null,t);
+
+    [
+      "Horse",
+      "Status",
+      "Jockey",
+      "Trainer",
+      "Weight",
+      "Morning line",
+      "Decimal odds"
+    ].forEach(
+      x => node("th",x,head)
+    );
+
+    hs.forEach(h => {
+      const r = node("tr",null,t);
+
+      [
+        name(h),
+        h.status,
+        h.jockey?.name,
+        h.trainer?.name,
+        h.weight,
+        h.morning_line?.fractional,
+        h.morning_line?.decimal
+      ].forEach(
+        x => node("td",x ?? "Unavailable",r)
+      );
+    });
+
+    bars(
+      "Morning-line decimal odds",
+      hs,
+      h => h.morning_line?.decimal,
+      ""
+    );
+
+    bars(
+      "Assigned racing weight",
+      hs,
+      h => h.weight,
+      ""
+    );
+
+    historical(
+      "Last 10 races - finishing positions"
+    );
+
+    historical(
+      "Last 10 races - speed ratings"
+    );
+
+    const profiles =
+      panel("Individual horse profiles");
+
+    hs.forEach(h => {
+      const d = node("details",null,profiles);
+
+      node("summary",name(h),d);
+
+      [
+        ["Status",h.status],
+        ["Jockey",h.jockey?.name],
+        ["Trainer",h.trainer?.name],
+        ["Weight",h.weight],
+        ["Morning line",h.morning_line?.fractional],
+        ["Decimal odds",h.morning_line?.decimal],
+        ["Last updated",h.updated_at],
+        ["Career record",null],
+        ["Surface record",null],
+        ["Distance record",null],
+        ["Track record",null],
+        ["Wet track record",null],
+        ["Jockey statistics",null],
+        ["Trainer statistics",null],
+        ["Pedigree",null]
+      ].forEach(
+        ([k,v]) => stat(d,k,v)
+      );
+    });
+
+    status(hs.length+" horse entries retrieved.");
+
+  }catch(e){
+    status("Error: "+e.message);
+  }finally{
+    busy(false);
+  }
 };
 </script>
 </body>
 </html>
-
+ 
