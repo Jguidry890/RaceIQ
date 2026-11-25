@@ -838,12 +838,11 @@ const key="horse:"+D.favoriteKey(h);
 area.value=prefs.notes[key]??"";
 btn(notes,"Save Note",()=>{
 prefs.notes[key]=area.value;
+
 persist();toast("Horse note saved.");
 });
 });
-});
 }
-
 /* ANALYTICS */
 
 function renderSelection(){
