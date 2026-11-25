@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#09111e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="RaceIQ">
+<title>RaceIQ | Professional Racing Intelligence</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
+viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40'
+fill='%2309111e'/%3E%3Cpath d='M35 145V105H65V145ZM80 145V75H110V145ZM125
+145V35H155V145Z' fill='%2334d399'/%3E%3C/svg%3E">
+<style>
+:root{
+--bg:#09111e;--card:#121e30;--soft:#1c2b40;
+--line:#29394e;--text:#f1f5f9;--muted:#94a3b8;
+--green:#34d399;--gold:#fbbf24;--red:#f87171;
+}
+body.light{
+--bg:#edf2f7;--card:#fff;--soft:#e6edf4;
+--line:#d3dce8;--text:#172438;--muted:#52637a;
+--green:#047857;--gold:#a16207;--red:#b91c1c;
+}
+*{box-sizing:border-box}
+body{
+margin:0;background:var(--bg);color:var(--text);
+font:14px system-ui,-apple-system,sans-serif;
+padding-bottom:calc(95px + env(safe-area-inset-bottom));
+}
+header{
+position:sticky;top:0;z-index:20;
+background:var(--bg);border-bottom:1px solid var(--line);
+padding:calc(14px + env(safe-area-inset-top)) 18px 14px;
+}
+.header{max-width:1300px;margin:auto;display:flex;align-items:center;justify-
+content:space-between}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{
+background:#123d32;color:#34d399;width:44px;height:44px;
+display:grid;place-items:center;border-radius:13px;font-size:24px
+}
+.brandname{font-size:26px;font-weight:850;letter-spacing:-1.2px}
+.green{color:var(--green)}
+.muted{color:var(--muted)}
+.warning{color:var(--gold)}
+.error{color:var(--red)}
+.eyebrow{
+font-size:10px;letter-spacing:1.7px;
+font-weight:750;text-transform:uppercase;color:var(--muted)
+}
+main{max-width:1300px;margin:auto;padding:20px}
+h1{font-size:30px;letter-spacing:-1px;margin:8px 0}
+h2{font-size:19px;margin:0 0 15px;letter-spacing:-.4px}
+h3{font-size:15px;margin:0 0 10px}
+p{line-height:1.6}
+small{color:var(--muted)}
+.hero{margin-bottom:20px}
+.panel{
+background:var(--card);border:1px solid var(--line);
+border-radius:18px;padding:18px;margin-bottom:15px
+}
+.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-
+bottom:18px}
+.metric{background:var(--card);border:1px solid var(--line);border-
+radius:15px;padding:16px}
+.metric strong{display:block;font-size:29px;margin:8px 0 3px;font-variant-
+numeric:tabular-nums}
+.metric small{font-size:11px}
+label{display:block;font-size:12px;font-weight:650;color:var(--muted);margin:13px 0
+7px}
+input,select,textarea,button{font:inherit;min-height:44px}
+input,select,textarea{
+width:100%;min-width:0;padding:12px;border:1px solid var(--line);
+border-radius:10px;background:var(--bg);color:var(--text);font-size:16px
+}
+textarea{min-height:90px;resize:vertical}
+button{
+border:0;border-radius:10px;padding:11px 15px;
+background:#059669;color:white;font-weight:750;cursor:pointer
+}
+button:disabled{opacity:.5}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid
+var(--green)}
+.secondary{background:var(--soft);color:var(--text);border:1px solid var(--line)}
+.full{width:100%;margin-top:12px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.actions button{flex:1}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.stat{display:flex;justify-content:space-between;gap:15px;padding:11px 0;border-
+bottom:1px solid var(--line);font-size:13px}
+.stat:last-child{border-bottom:0}
+.stat span{color:var(--muted)}
+.stat strong{text-align:right;overflow-wrap:anywhere}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tag{display:inline-block;border-radius:7px;background:var(--soft);padding:5px
+8px;font-size:10px;font-weight:750}
+.hidden{display:none!important}
+.empty{padding:25px 15px;text-align:center;color:var(--muted);border:1px dashed
+var(--line);border-radius:12px;margin:12px 0}
+.scroll{overflow:auto}
+table{border-collapse:collapse;width:100%;white-space:nowrap;font-size:13px}
+th,td{padding:13px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--soft);color:var(--muted)}
+td:first-child,th:first-child{position:sticky;left:0;background:var(--card)}
+details{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
+summary{cursor:pointer;color:var(--green);font-weight:700;padding:6px 0}
+.number{display:grid;place-items:center;background:var(--soft);color:var(--
+green);font-size:20px;font-weight:800;border-
+radius:10px;width:44px;height:44px;flex-shrink:0}
+.horsehead{display:flex;align-items:center;gap:12px}
+.bartrack{height:10px;background:var(--soft);border-
+radius:8px;overflow:hidden;margin-top:7px}
+.bar{height:100%;background:linear-gradient(90deg,#059669,#34d399);border-
+radius:8px}
+.barrow{margin:16px 0;font-size:12px}
+.checkrow{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px
+solid var(--line)}
+.checkrow input{width:20px;min-height:20px;accent-color:#059669}
+nav{
+position:fixed;bottom:0;left:0;right:0;z-index:30;
+background:var(--card);border-top:1px solid var(--line);
+display:flex;padding:7px 4px calc(7px + env(safe-area-inset-bottom))
+}
+nav button{flex:1;background:none;color:var(--muted);font-size:10px;padding:8px
+2px;min-width:0}
+nav button.active{color:var(--green)}
+nav svg{display:block;width:23px;height:23px;margin:0 auto 5px}
+#toast{
+position:fixed;bottom:95px;left:50%;transform:translateX(-50%);
+max-width:90%;width:max-content;background:var(--soft);
+border:1px solid var(--line);border-radius:12px;padding:14px;
+z-index:100;box-shadow:0 8px 30px #0004
+}
+#loading{position:fixed;inset:0;background:#0009;z-index:90;display:grid;place-
+items:center}
+.spinner{width:35px;height:35px;border:3px solid var(--line);border-top-color:var(--
+green);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 15px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(min-width:800px){
+.metrics{grid-template-columns:repeat(4,minmax(0,1fr))}
+.desktop,.horsegrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+nav{max-width:850px;left:50%;transform:translateX(-50%);border-radius:18px 18px 0 0}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<header>
+<div class="header">
+<div class="brand">
+<div class="logo">▥</div>
+<div>
+<div class="brandname">Race<span class="green">IQ</span></div>
+<div class="eyebrow">Racing Intelligence</div>
+</div>
+</div>
+<button class="secondary" id="themeToggle" aria-label="Change theme">◐</button>
+</div>
+</header>
+<main>
+<section id="home">
+<div class="hero">
+<div class="eyebrow">Professional Edition 5.0</div>
+<h1>Race Center</h1>
+<p class="muted" id="todayLabel"></p>
+</div>
+<div class="metrics">
+<div class="metric"><small>AVAILABLE RACES</small><strong id="raceCount">—</strong>
+<small>Selected date</small></div>
+<div class="metric"><small>RACETRACKS</small><strong id="trackCount">—</strong>
+<small>Available meetings</small></div>
+<div class="metric"><small>API REMAINING</small><strong class="green"
+id="quotaCount">—</strong><small>Last reported quota</small></div>
+<div class="metric"><small>SAVED ITEMS</small><strong id="savedCount">0</strong>
+<small>Personal workspace</small></div>
+</div>
+<div class="desktop">
+<div class="panel">
+<h2>Race Explorer</h2>
+<label for="password">Private access password</label>
+<input id="password" type="password" autocomplete="off" placeholder="RaceIQ
+password">
+<label for="date">Race date</label>
+<input id="date" type="date">
+<div class="actions">
+<button class="secondary" id="todayBtn">Today</button>
+<button class="secondary" id="tomorrowBtn">Tomorrow</button>
+</div>
+<button class="full" id="load">Explore Race Cards</button>
+<p id="status" class="muted" role="status">Ready to connect.</p>
+<p id="warning" class="warning"></p>
+<label for="country">Country</label>
+<select id="country">
+<option value="all">All countries</option>
+<option value="us">United States</option>
+<option value="unknown">Unspecified country</option>
+</select>
+<label for="trackSearch">Find racetrack</label>
+<input id="trackSearch" placeholder="Search racetracks">
+<label for="track">Racetrack</label>
+<select id="track"></select>
+<label for="race">Race</label>
+<select id="race"></select>
+<button class="full" id="loadHorses">Open Race Intelligence</button>
+</div>
+<div>
+<div id="overview"></div>
+<div class="panel">
+<h2>Data Coverage</h2>
+<div id="coverage"></div>
+</div>
+<div class="panel">
+<h2>Recently Viewed</h2>
+<div id="recent"></div>
+</div>
+</div>
+</div>
+</section>
+<section id="tracks" class="hidden">
+<div class="hero">
+<div class="eyebrow">Meeting directory</div>
+<h1>Racetracks</h1>
+<p class="muted">Explore available race meetings.</p>
+</div>
+<input id="directorySearch" placeholder="Search meetings">
+<div id="directory" style="margin-top:15px"></div>
+</section>
+<section id="field" class="hidden">
+<div class="hero">
+<div class="eyebrow">Horse intelligence</div>
+<h1>Race Field</h1>
+<p class="muted" id="fieldSubtitle">Select a race.</p>
+</div>
+<div class="panel">
+<input id="horseSearch" placeholder="Search horse, jockey or trainer">
+<div class="two">
+<div>
+<label for="sort">Sort horses</label>
+<select id="sort">
+<option value="number">Program number</option>
+<option value="name">Horse name</option>
+<option value="odds">Decimal odds</option>
+<option value="weight">Assigned weight</option>
+</select>
+</div>
+<div>
+<label for="entryStatus">Entry status</label>
+<select id="entryStatus">
+<option value="all">All entries</option>
+<option value="active">Not marked scratched</option>
+<option value="scratch">Scratched</option>
+</select>
+</div>
+</div>
+<div class="actions">
+<button class="secondary" id="cardsBtn">Cards</button>
+<button class="secondary" id="tableBtn">Table</button>
+<button class="secondary" id="csvBtn">Export CSV</button>
+</div>
+</div>
+<div id="fieldResults"></div>
+</section>
+<section id="analytics" class="hidden">
+<div class="hero">
+<div class="eyebrow">Comparative intelligence</div>
+<h1>Analytics</h1>
+<p class="muted" id="analyticsSubtitle">Compare available horse data.</p>
+</div>
+<div class="panel">
+<h2>Horse Selection</h2>
+<div class="actions">
+<button class="secondary" id="selectAll">Select all</button>
+<button class="secondary" id="selectNone">Clear</button>
+</div>
+<div id="selection"></div>
+</div>
+<div id="charts"></div>
+</section>
+<section id="saved" class="hidden">
+<div class="hero">
+<div class="eyebrow">Personal workspace</div>
+<h1>Watchlist</h1>
+<p class="muted">Saved privately on this device.</p>
+</div>
+<div class="panel"><h2>Bookmarked Races</h2><div id="savedRaces"></div></div>
+<div class="panel"><h2>Favorite Horses</h2><div id="savedHorses"></div></div>
+<div class="panel"><h2>Favorite Tracks</h2><div id="savedTracks"></div></div>
+<div class="panel">
+<h2>Personal Notebook</h2>
+<textarea id="notebook" placeholder="Record your observations..."></textarea>
+<button class="full" id="saveNotebook">Save Notebook</button>
+</div>
+</section>
+<section id="settings" class="hidden">
+<div class="hero">
+<div class="eyebrow">Application management</div>
+<h1>Settings</h1>
+</div>
+<div class="desktop">
+<div>
+<div class="panel">
+<h2>API Usage</h2>
+<div id="usage"></div>
+<div class="bartrack"><div class="bar" id="quotaBar" style="width:0"></div></div>
+<p class="muted" id="quotaNote"></p>
+</div>
+<div class="panel">
+<h2>System Diagnostics</h2>
+<div id="diagnostics"></div>
+<button class="full" id="checkBackend">Check Backend Connection</button>
+</div>
+</div>
+<div>
+<div class="panel">
+<h2>Display Preferences</h2>
+<label for="theme">Appearance</label>
+<select id="theme"><option value="dark">Professional Dark</option><option
+value="light">Clean Light</option></select>
+<label for="layout">Default horse layout</label>
+<select id="layout"><option value="cards">Horse cards</option><option
+value="table">Comparison table</option></select>
+</div>
+<div class="panel">
+<h2>Privacy & Storage</h2>
+<p class="muted">Your favorites and notes remain on this device. Your password is
+not permanently stored.</p>
+<button class="secondary full" id="backup">Export Personal Data</button>
+<button class="secondary full" id="restore">Import Personal Data</button>
+<input class="hidden" id="importFile" type="file" accept=".json,application/json">
+<button class="secondary full" id="logout">Clear Session</button>
+<button class="secondary full error" id="erase">Delete Personal Data</button>
+</div>
+<div class="panel">
+<h2>About RaceIQ</h2>
+<p class="green">Professional Edition 5.0</p>
+<p class="muted">Independent racing analytics interface. Race data supplied by
+SportStatsAPI. Morning-line odds are not confirmed live odds.</p>
+<p class="muted">Historical statistics require a verified historical data source.
+Public distribution requires additional licensing and mobile packaging.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<nav id="nav"></nav>
+<div id="toast" class="hidden" role="status"></div>
+<div id="loading" class="hidden">
+<div class="panel" style="text-align:center;min-width:240px">
+<div class="spinner"></div>
+<strong id="loadingText">Retrieving data...</strong>
+<p class="muted">Connecting to RaceIQ</p>
+</div>
+</div>
+<script>
+"use strict";
+/* CONFIGURATION */
+const CONFIG={
+version:"5.0",
+api:"https://raceiq-api.guidryjoseph890.workers.dev",
+provider:"SportStatsAPI",
+storage:"raceiq-professional-v5",
+timeout:90000
+};
+const $=id=>document.getElementById(id);
+function defaults(){
+return {
+theme:"dark",layout:"cards",
+races:[],horses:[],tracks:[],recent:[],
+notes:{},notebook:""
+};
+}
+function normalizePrefs(data){
+const p={...defaults(),...data};
+for(const k of ["races","horses","tracks","recent"]){
+if(!Array.isArray(p[k]))p[k]=[];
+}
+if(!p.notes||typeof p.notes!=="object"||Array.isArray(p.notes))p.notes={};
+p.theme=p.theme==="light"?"light":"dark";
+p.layout=p.layout==="table"?"table":"cards";
+return p;
+}
+let prefs;
+try{
+prefs=normalizePrefs(JSON.parse(localStorage.getItem(CONFIG.storage)||"{}"));
+}catch{prefs=defaults();}
+const S={
+races:[],runners:[],race:null,
+quota:null,meta:{},requests:0,hits:0,
+selected:new Set(),busy:false,
+layout:prefs.layout
+};
+/* UTILITIES */
+function make(tag,text,parent,cls){
+const e=document.createElement(tag);
+if(text!==null&&text!==undefined)e.textContent=String(text);
+if(cls)e.className=cls;
+if(parent)parent.append(e);
+return e;
+}
+function btn(parent,text,fn,primary=false){
+const b=make("button",text,parent,primary?"":"secondary");
+b.onclick=fn;
+return b;
+}
+function panel(parent,title){
+const p=make("div",null,parent,"panel");
+make("h2",title,p);
+return p;
+}
+function value(v){
+if(v===null||v===undefined||v==="")return "Unavailable";
+if(typeof v==="object")return String(v.label??v.name??v.value??"Unavailable");
+return String(v);
+}
+function stat(parent,key,v){
+const r=make("div",null,parent,"stat");
+make("span",key,r);
+make("strong",value(v),r);
+}
+function empty(parent,text){
+make("div",text,parent,"empty");
+}
+function option(parent,v,text){
+const o=make("option",text,parent);
+o.value=v;
+}
+function num(v){
+if(v===null||v===undefined||v==="")return null;
+const n=Number(v);
+return Number.isFinite(n)?n:null;
+}
+function dateLocal(offset=0){
+const d=new Date();
+d.setDate(d.getDate()+offset);
+return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+}
+function dateLabel(d){
+if(!d)return "Unknown date";
+const n=new Date(String(d).slice(0,10)+"T12:00:00");
+return isNaN(n.getTime())?String(d):n.toLocaleDateString(undefined,
+{month:"short",day:"numeric",year:"numeric"});
+}
+let toastTimer;
+function toast(text){
+$("toast").textContent=text;
+$("toast").classList.remove("hidden");
+clearTimeout(toastTimer);
+toastTimer=setTimeout(()=>$("toast").classList.add("hidden"),3500);
+}
+function persist(){
+try{
+localStorage.setItem(CONFIG.storage,JSON.stringify(prefs));
+}catch{toast("Local storage unavailable.");}
+$("savedCount").textContent=prefs.races.length+prefs.horses.length+prefs.tracks.length;
+}
+function busy(active,text){
+S.busy=active;
+$("loadingText").textContent=text||"Retrieving data...";
+$("loading").classList.toggle("hidden",!active);
+$("load").disabled=active;
+$("loadHorses").disabled=active;
+}
+function status(text){
+$("status").textContent=text;
+}
+function applyTheme(){
+document.body.classList.toggle("light",prefs.theme==="light");
+$("theme").value=prefs.theme;
+document.querySelector('meta[name="theme-color"]').content=prefs.theme==="light"?"#edf2f7":"#09111e";
+}
+/* NAVIGATION */
+const NAV=[
+["home","Home","M3 10l9-7 9 7v10H3z M9 20v-7h6v7"],
+["tracks","Tracks","M3 5h18v16H3z M7 2v6 M17 2v6 M3 10h18"],
+["field","Field","M3 4h18v16H3z M3 9h18 M9 9v11 M15 9v11"],
+["analytics","Analytics","M3 3v18h18 M7 17v-5 M12 17V8 M17 17V4"],
+["saved","Saved","M6 3h12v18l-6-4-6 4z"],
+["settings","More","M4 12h2 M11 12h2 M18 12h2"]
+];
+function navigate(page){
+NAV.forEach(([id])=>$(id).classList.toggle("hidden",id!==page));
+document.querySelectorAll("nav button").forEach(b=>{
+b.classList.toggle("active",b.dataset.page===page);
+});
+if(page==="saved")renderSaved();
+if(page==="analytics")renderAnalytics();
+if(page==="tracks")renderDirectory();
+window.scrollTo(0,0);
+}
+NAV.forEach(([id,label,path])=>{
+const b=make("button",null,$("nav"));
+b.dataset.page=id;
+b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="'+path+'"/></svg>';
+make("span",label,b);
+b.onclick=()=>navigate(id);
+});
+/* API CLIENT */
+async function request(path,auth=true){
+const headers={Accept:"application/json"};
+if(auth){
+const password=$("password").value;
+if(!password)throw Error("Enter your RaceIQ password.");
+headers.Authorization="Bearer "+password;
+}
+const controller=new AbortController();
+const timer=setTimeout(()=>controller.abort(),CONFIG.timeout);
+try{
+const response=await fetch(CONFIG.api+path,{
+headers,cache:"no-store",signal:controller.signal
+});
+const j=await response.json();
+if(j.meta)updateUsage(j.meta);
+if(!response.ok||j.success===false){
+throw Error(typeof j.error==="string"?j.error:j.error?.message??j.message??"Request failed: "+response.status);
+}
+return j;
+}catch(e){
+if(e.name==="AbortError")throw Error("Connection timed out.");
+throw e;
+}finally{clearTimeout(timer);}
+}
+function updateUsage(meta){
+S.meta=meta;
+S.requests+=num(meta.requests_used)??0;
+S.hits+=num(meta.cache_hits)??0;
+if(meta.quota?.remaining!=null)S.quota=meta.quota;
+renderUsage();
+}
+function renderUsage(){
+const q=S.quota;
+$("quotaCount").textContent=q?.remaining??"—";
+const root=$("usage");
+root.replaceChildren();
+[
+["Provider",CONFIG.provider],
+["Daily allowance",q?.limit],
+["Last reported remaining",q?.remaining],
+["Session API requests",S.requests],
+["Session cache hits",S.hits],
+["Last load cache hits",S.meta.cache_hits],
+["Quota reset",q?.reset],
+["Last quota observation",q?.observed_at],
+["Provider UTC date",S.meta.provider_utc_date],
+["Reported data delay",q?.data_delay_seconds!=null?q.data_delay_seconds +" seconds":null]
+].forEach(([k,v])=>stat(root,k,v));
+const limit=num(q?.limit);
+const remaining=num(q?.remaining);
+$("quotaBar").style.width=limit>0&&remaining!==null?
+Math.max(0,Math.min(100,remaining/limit*100))+"%":"0%";
+$("quotaNote").textContent=q?
+"Last reported provider quota. Cached responses may not update this number.":
+"Provider quota has not been reported.";
+}
+/* DATA NORMALIZATION */
+const D={
+track:r=>r?.meeting?.name??"Unknown track",
+date:r=>String(r?.meeting?.date??r?.race_date??"").slice(0,10),
+race:r=>r?.race_name??r?.name??r?.code??"Unknown race",
+horse:h=>h.horse_name??h.horse?.name??"Unknown horse",
+jockey:h=>h.jockey?.name??null,
+trainer:h=>h.trainer?.name??null,
+odds:h=>num(h.morning_line?.decimal),
+fraction:h=>h.morning_line?.fractional??null,
+weight:h=>num(h.weight),
+horseCode:h=>h.horse?.code??h.horse_code??null,
+scratch:h=>/scratch|withdraw|non.runner/.test(String(h.status??"").toLowerCase()),
+country(r){
+const c=r?.meeting?.country??r?.country;
+return String(typeof c==="object"&&c!==null?c.code??c.name??"":c??
+r?.meeting?.country_code??r?.country_code??"").trim().toLowerCase();
+},
+key(h){
+return String(h.code??this.horseCode(h)??
+(S.race?.code+":"+h.number+":"+this.horse(h)));
+},
+favoriteKey(h){
+return String(this.horseCode(h)??this.horse(h));
+},
+label(h){return "#"+(h.number??"?")+" "+this.horse(h);}
+};
+/* RACE EXPLORER */
+function filteredRaces(search=""){
+const country=$("country").value;
+return S.races.filter(r=>{
+const c=D.country(r);
+return D.track(r).toLowerCase().includes(search.toLowerCase())&&
+(country==="all"||
+(country==="us"&&["us","usa","united states","united states of america"].includes(c))||
+(country==="unknown"&&!c));
+});
+}
+function resetField(){
+S.race=null;
+S.runners=[];
+S.selected.clear();
+$("overview").replaceChildren();
+$("fieldSubtitle").textContent="Select a race.";
+$("analyticsSubtitle").textContent="Compare available horse data.";
+renderField();
+renderAnalytics();
+renderCoverage();
+}
+function updateTracks(){
+const old=$("track").value;
+const rows=filteredRaces($("trackSearch").value.trim());
+const tracks=[...new Set(rows.map(D.track))].sort();
+$("track").replaceChildren();
+tracks.forEach(t=>option($("track"),t,t));
+if(tracks.includes(old))$("track").value=old;
+$("raceCount").textContent=rows.length;
+$("trackCount").textContent=tracks.length;
+updateRaces();
+renderDirectory();
+}
+function updateRaces(){
+const old=$("race").value;
+const
+rows=filteredRaces($("trackSearch").value.trim()).filter(r=>D.track(r)===$("track").
+value);
+$("race").replaceChildren();
+rows.forEach(r=>option($("race"),String(r.code),D.race(r)));
+if(rows.some(r=>String(r.code)===old))$("race").value=old;
+resetField();
+}
+function changeDate(date){
+$("date").value=date;
+S.races=[];
+updateTracks();
+$("warning").textContent="";
+status("Date selected. Explore race cards.");
+}
+async function loadCards(){
+if(S.busy)return;
+busy(true,"Retrieving race cards...");
+try{
+const date=$("date").value;
+if(!date)throw Error("Select a date.");
+const j=await request("/races?date="+encodeURIComponent(date));
+if(!Array.isArray(j.data))throw Error("Invalid race response.");
+S.races=j.data;
+updateTracks();
+$("warning").textContent=j.meta?.warning??(j.meta?.complete===false?"Provider coverage may be incomplete.":"");
+status(S.races.length+" races across "+new Set(S.races.map(D.track)).size +" tracks.");
+toast("Race cards updated.");
+}catch(e){
+status(e.message);
+toast(e.message);
+}finally{busy(false);}
+}
+async function openRace(race){
+if(S.busy)return;
+if(!race){toast("Select a race first.");return;}
+busy(true,"Retrieving horse entries...");
+try{
+const j=await request("/races/"+encodeURIComponent(race.code)+"/runners");
+if(!Array.isArray(j.data))throw Error("Invalid entrant response.");
+S.race=race;
+S.runners=j.data;
+S.selected=new Set(S.runners.filter(h=>!D.scratch(h)).map(h=>D.key(h)));
+const record=
+{code:race.code,name:D.race(race),track:D.track(race),date:D.date(race)};
+prefs.recent=[record,...prefs.recent.filter(r=>r.code!==record.code)].slice(0,12);
+persist();
+$("fieldSubtitle").textContent=D.track(race)+" • "+D.race(race);
+$("analyticsSubtitle").textContent=D.track(race)+" • "+D.race(race);
+renderOverview();
+renderField();
+renderAnalytics();
+renderRecent();
+renderCoverage();
+status(S.runners.length+" horse entries retrieved.");
+navigate("field");
+}catch(e){
+status(e.message);
+toast(e.message);
+}finally{busy(false);}
+}
+function renderOverview(){
+const root=$("overview");
+root.replaceChildren();
+if(!S.race)return;
+const r=S.race;
+const p=panel(root,D.race(r));
+make("p",D.track(r)+" • "+dateLabel(D.date(r)),p,"muted");
+[
+["Distance",r.distance],
+["Surface",r.surface],
+["Track condition",r.track_condition??r.going],
+["Purse",r.purse],
+["Class",r.race_type?.label??r.race_class],
+["Entries",S.runners.length],
+["Marked scratched",S.runners.filter(D.scratch).length],
+["Race code",r.code]
+].forEach(([k,v])=>stat(p,k,v));
+const a=make("div",null,p,"actions");
+btn(a,"View Field",()=>navigate("field"),true);
+btn(a,"Bookmark",()=>saveRace(r));
+}
+function renderDirectory(){
+const root=$("directory");
+root.replaceChildren();
+const rows=filteredRaces($("directorySearch").value.trim());
+const tracks=[...new Set(rows.map(D.track))].sort();
+if(!tracks.length){empty(root,"No meetings loaded. Explore race cards from Home.");return;}
+tracks.forEach(track=>{
+const p=panel(root,track);
+const list=rows.filter(r=>D.track(r)===track);
+const row=make("div",null,p,"row");
+make("span",list.length+" available races",row,"muted");
+btn(row,prefs.tracks.includes(track)?"★ Saved":"☆ Save",()=>{
+if(prefs.tracks.includes(track))prefs.tracks=prefs.tracks.filter(t=>t!==track);
+else prefs.tracks.push(track);
+persist();renderDirectory();
+});
+const d=make("details",null,p);
+make("summary","View race cards",d);
+list.forEach(r=>{
+const a=make("div",null,d,"stat");
+make("span",D.race(r),a);
+btn(a,"Open",()=>openRace(r));
+});
+});
+}
+/* HORSE PROFILES */
+function visibleHorses(){
+const q=$("horseSearch").value.trim().toLowerCase();
+const f=$("entryStatus").value;
+const sort=$("sort").value;
+const rows=S.runners.filter(h=>{
+return [D.label(h),D.jockey(h),D.trainer(h)].join(" ").toLowerCase().includes(q)&&
+(f==="all"||(f==="active"&&!D.scratch(h))||(f==="scratch"&&D.scratch(h)));
+});
+rows.sort((a,b)=>{
+if(sort==="name")return D.horse(a).localeCompare(D.horse(b));
+if(sort==="odds")return (D.odds(a)??Infinity)-(D.odds(b)??Infinity);
+if(sort==="weight")return (D.weight(a)??Infinity)-(D.weight(b)??Infinity);
+return String(a.number??"").localeCompare(String(b.number??""),undefined,
+{numeric:true});
+});
+return rows;
+}
+function horseStats(h){
+return [
+["Entry status",h.status],
+["Horse code",D.horseCode(h)],
+["Age",h.age??h.horse?.age],
+["Sex",h.sex??h.horse?.sex],
+["Jockey",D.jockey(h)],
+["Trainer",D.trainer(h)],
+["Assigned weight",h.weight],
+["Morning-line odds",D.fraction(h)],
+["Decimal odds",D.odds(h)],
+["Sire",h.sire??h.horse?.sire],
+["Dam",h.dam??h.horse?.dam],
+["Last updated",h.updated_at]
+];
+}
+function renderField(){
+const root=$("fieldResults");
+root.replaceChildren();
+if(!S.race){empty(root,"Open a race from the Race Center.");return;}
+const rows=visibleHorses();
+const top=panel(root,"Race Field Summary");
+stat(top,"Total entries",S.runners.length);
+stat(top,"Marked scratched",S.runners.filter(D.scratch).length);
+stat(top,"Displayed entries",rows.length);
+const actions=make("div",null,top,"actions");
+btn(actions,"Compare Horses",()=>navigate("analytics"),true);
+btn(actions,"Save Race",()=>saveRace(S.race));
+if(!rows.length){empty(root,"No matching horses.");return;}
+if(S.layout==="table"){
+const p=panel(root,"Comparison Table");
+const scroll=make("div",null,p,"scroll");
+const table=make("table",null,scroll);
+const head=make("tr",null,table);
+["Horse","Status","Jockey","Trainer","Weight","Morning line","Decimal"].forEach(v=>make("th",v,head));
+rows.forEach(h=>{
+const tr=make("tr",null,table);
+[D.label(h),h.status,D.jockey(h),D.trainer(h),h.weight,D.fraction(h),D.odds(h)].forEach(v=>make("td",value(v),tr));
+});
+return;
+}
+const grid=make("div",null,root,"horsegrid");
+rows.forEach(h=>{
+const p=make("div",null,grid,"panel");
+const head=make("div",null,p,"horsehead");
+make("div",h.number??"?",head,"number");
+const title=make("div",null,head);
+make("h3",D.horse(h),title);
+make("span",value(h.status),title,D.scratch(h)?"error":"muted");
+stat(p,"Jockey",D.jockey(h));
+stat(p,"Trainer",D.trainer(h));
+stat(p,"Morning line",D.fraction(h));
+stat(p,"Assigned weight",h.weight);
+const a=make("div",null,p,"actions");
+btn(a,prefs.horses.some(x=>x.key===D.favoriteKey(h))?"★ Saved":"☆ Favorite",()=>{
+saveHorse(h);renderField();
+});
+btn(a,"Analytics",()=>{
+S.selected=new Set([D.key(h)]);
+navigate("analytics");
+});
+const d=make("details",null,p);
+make("summary","Full Horse Profile",d);
+horseStats(h).forEach(([k,v])=>stat(d,k,v));
+const historical=make("details",null,d);
+make("summary","Historical Performance",historical);
+[
+"Career record","Last 10 races","Speed ratings",
+"Track record","Distance record","Surface record",
+"Wet track record","Jockey win rate","Trainer win rate"
+].forEach(k=>stat(historical,k,null));
+make("p","Historical data source not connected.",historical,"muted");
+const notes=make("details",null,p);
+make("summary","Personal Notes",notes);
+const area=make("textarea",null,notes);
+area.placeholder="Record observations about this horse...";
+const key="horse:"+D.favoriteKey(h);
+area.value=prefs.notes[key]??"";
+btn(notes,"Save Note",()=>{
+prefs.notes[key]=area.value;
+persist();toast("Horse note saved.");
+});
+});
+}
+/* ANALYTICS */
+function renderSelection(){
+const root=$("selection");
+root.replaceChildren();
+if(!S.runners.length){empty(root,"No race loaded.");return;}
+S.runners.forEach(h=>{
+const label=make("label",null,root,"checkrow");
+const c=make("input",null,label);
+c.type="checkbox";
+c.checked=S.selected.has(D.key(h));
+c.onchange=()=>{
+if(c.checked)S.selected.add(D.key(h));
+else S.selected.delete(D.key(h));
+renderCharts();
+};
+make("span",D.label(h)+(D.scratch(h)?" — scratched":""),label);
+});
+}
+function bars(root,title,rows,get){
+const p=panel(root,title);
+const data=rows.map(h=>
+({h,v:get(h)})).filter(x=>x.v!==null&&Number.isFinite(x.v)&&x.v>=0);
+if(!data.length){empty(p,"No verified values available.");return;}
+const max=Math.max(1,...data.map(x=>x.v));
+data.forEach(({h,v})=>{
+const row=make("div",null,p,"barrow");
+const label=make("div",null,row,"row");
+make("span",D.label(h),label);
+make("strong",v,label);
+const track=make("div",null,row,"bartrack");
+const bar=make("div",null,track,"bar");
+bar.style.width=(v/max*100)+"%";
+});
+}
+function renderCharts(){
+const root=$("charts");
+root.replaceChildren();
+const rows=S.runners.filter(h=>S.selected.has(D.key(h)));
+if(!rows.length){empty(root,"Select horses to compare.");return;}
+const p=panel(root,"Selected Horse Comparison");
+const scroll=make("div",null,p,"scroll");
+const table=make("table",null,scroll);
+const head=make("tr",null,table);
+make("th","Statistic",head);
+rows.forEach(h=>make("th",D.label(h),head));
+[
+["Jockey",D.jockey],
+["Trainer",D.trainer],
+["Weight",h=>h.weight],
+["Morning line",D.fraction],
+["Decimal odds",D.odds],
+["Status",h=>h.status],
+["Age",h=>h.age??h.horse?.age],
+["Career wins",()=>null],
+["Average speed",()=>null],
+["Track wins",()=>null]
+].forEach(([label,get])=>{
+const tr=make("tr",null,table);
+make("td",label,tr);
+rows.forEach(h=>make("td",value(get(h)),tr));
+});
+bars(root,"Morning-line Decimal Odds",rows,D.odds);
+bars(root,"Assigned Racing Weight",rows,D.weight);
+const history=panel(root,"Historical Performance Center");
+[
+"Last 10 finishing positions",
+"Last 10 speed figures",
+"Career performance",
+"Track and distance records",
+"Surface and wet track records",
+"Class progression",
+"Jockey and trainer statistics"
+].forEach(k=>stat(history,k,"Not connected"));
+make("p","These analytics require genuine historical records. No estimates or fabricated performance figures are substituted.",history,"muted");
+}
+function renderAnalytics(){
+renderSelection();
+renderCharts();
+}
+/* FAVORITES AND NOTES */
+function saveRace(r){
+if(!r)return;
+if(!prefs.races.some(x=>x.code===r.code)){
+prefs.races.push({code:r.code,name:D.race(r),track:D.track(r),date:D.date(r)});
+persist();toast("Race bookmarked.");
+}else toast("Race already bookmarked.");
+}
+function saveHorse(h){
+const key=D.favoriteKey(h);
+if(prefs.horses.some(x=>x.key===key)){
+prefs.horses=prefs.horses.filter(x=>x.key!==key);
+toast("Favorite removed.");
+}else{
+prefs.horses.push({key,name:D.horse(h),code:D.horseCode(h),jockey:D.jockey(h),trainer:D.trainer(h)});
+toast("Horse saved.");
+}
+persist();
+}
+function openSavedRace(record){
+const r=S.races.find(x=>String(x.code)===String(record.code));
+if(r){openRace(r);return;}
+navigate("home");
+changeDate(record.date||dateLocal());
+toast("Load race cards for the saved date, then reopen the race.");
+}
+function renderRecent(){
+const root=$("recent");
+root.replaceChildren();
+if(!prefs.recent.length){empty(root,"No recently viewed races.");return;}
+prefs.recent.forEach(r=>{
+const row=make("div",null,root,"stat");
+make("span",r.track+" • "+r.name,row);
+btn(row,"Open",()=>openSavedRace(r));
+});
+}
+function renderSaved(){
+for(const id of ["savedRaces","savedHorses","savedTracks"])$(id).replaceChildren();
+if(!prefs.races.length)empty($("savedRaces"),"No bookmarked races.");
+if(!prefs.horses.length)empty($("savedHorses"),"No favorite horses.");
+if(!prefs.tracks.length)empty($("savedTracks"),"No favorite tracks.");
+prefs.races.forEach(r=>{
+const d=make("div",null,$("savedRaces"));
+make("h3",r.name,d);
+make("p",r.track+" • "+dateLabel(r.date),d,"muted");
+const a=make("div",null,d,"actions");
+btn(a,"Open",()=>openSavedRace(r));
+btn(a,"Remove",()=>{
+prefs.races=prefs.races.filter(x=>x.code!==r.code);
+persist();renderSaved();
+});
+const notes=make("details",null,d);
+make("summary","Race Notes",notes);
+const area=make("textarea",null,notes);
+const key="race:"+r.code;
+area.value=prefs.notes[key]??"";
+btn(notes,"Save Note",()=>{
+prefs.notes[key]=area.value;
+persist();toast("Race note saved.");
+});
+});
+prefs.horses.forEach(h=>{
+const d=make("div",null,$("savedHorses"));
+make("h3",h.name,d);
+stat(d,"Jockey",h.jockey);
+stat(d,"Trainer",h.trainer);
+btn(d,"Remove",()=>{
+prefs.horses=prefs.horses.filter(x=>x.key!==h.key);
+persist();renderSaved();
+});
+const notes=make("details",null,d);
+make("summary","Horse Notes",notes);
+const area=make("textarea",null,notes);
+const key="horse:"+h.key;
+area.value=prefs.notes[key]??"";
+btn(notes,"Save Note",()=>{
+prefs.notes[key]=area.value;
+persist();toast("Note saved.");
+});
+});
+prefs.tracks.forEach(t=>{
+const row=make("div",null,$("savedTracks"),"stat");
+make("span",t,row);
+btn(row,"Remove",()=>{
+prefs.tracks=prefs.tracks.filter(x=>x!==t);
+persist();renderSaved();
+});
+});
+$("notebook").value=prefs.notebook??"";
+}
+/* DATA COVERAGE */
+function renderCoverage(){
+const root=$("coverage");
+root.replaceChildren();
+[
+["Race cards",S.races.length?"Loaded":"Ready"],
+["Horse entries",S.runners.length?"Loaded":"Ready"],
+["Morning-line odds",S.runners.some(h=>D.odds(h)!==null||D.fraction(h)!=null)?"Available":"Not loaded"],
+["Jockey information",S.runners.some(h=>D.jockey(h))?"Available":"Not loaded"],
+["Trainer information",S.runners.some(h=>D.trainer(h))?"Available":"Not loaded"],
+["Historical results","Not connected"],
+["Speed figures","Not connected"],
+["Career statistics","Not connected"],
+["Confirmed live odds","Not connected"]
+].forEach(([k,v])=>stat(root,k,v));
+}
+/* EXPORT AND BACKUP */
+function download(filename,text,type){
+const blob=new Blob([text],{type});
+const url=URL.createObjectURL(blob);
+const a=document.createElement("a");
+a.href=url;a.download=filename;
+document.body.append(a);a.click();a.remove();
+setTimeout(()=>URL.revokeObjectURL(url),30000);
+}
+function csvCell(v){
+let s=v==null?"":String(v);
+if(/^[=+\-@\t\r]/.test(s))s="'"+s;
+return '"'+s.replace(/"/g,'""')+'"';
+}
+function exportCSV(){
+if(!S.runners.length){toast("Load a race first.");return;}
+const rows=
+[["Track","Race","Date","Number","Horse","Status","Jockey","Trainer","Weight","Morning Line","Decimal Odds"]];
+S.runners.forEach(h=>rows.push([
+D.track(S.race),D.race(S.race),D.date(S.race),
+h.number,D.horse(h),h.status,D.jockey(h),
+D.trainer(h),h.weight,D.fraction(h),D.odds(h)
+]));
+download("RaceIQ-"+S.race.code+".csv",rows.map(r=>r.map(csvCell).join(",")).join("\r\n"),"text/csv ;charset=utf-8");
+}
+function clearSession(){
+$("password").value="";
+S.races=[];
+S.quota=null;
+S.meta={};
+S.requests=0;
+S.hits=0;
+updateTracks();
+renderUsage();
+$("warning").textContent="";
+status("Session cleared.");
+navigate("home");
+}
+/* EVENT CONNECTIONS */
+$("date").value=dateLocal();
+$("todayLabel").textContent=new Date().toLocaleDateString(undefined,
+{weekday:"long",month:"long",day:"numeric",year:"numeric"});
+$("todayBtn").onclick=()=>changeDate(dateLocal());
+$("tomorrowBtn").onclick=()=>changeDate(dateLocal(1));
+$("date").onchange=()=>changeDate($("date").value);
+$("load").onclick=loadCards;
+$("loadHorses").onclick=
+()=>openRace(S.races.find(r=>String(r.code)===$("race").value));
+$("track").onchange=updateRaces;
+$("race").onchange=resetField;
+$("country").onchange=()=>{
+updateTracks();
+if($("country").value==="us"&&S.races.some(r=>!D.country(r))){
+toast("Races without country information are excluded.");
+}
+};
+$("trackSearch").oninput=updateTracks;
+$("directorySearch").oninput=renderDirectory;
+$("horseSearch").oninput=renderField;
+$("sort").onchange=renderField;
+$("entryStatus").onchange=renderField;
+$("cardsBtn").onclick=()=>{S.layout="cards";renderField();};
+$("tableBtn").onclick=()=>{S.layout="table";renderField();};
+$("csvBtn").onclick=exportCSV;
+$("selectAll").onclick=()=>{
+S.selected=new Set(S.runners.map(h=>D.key(h)));
+renderAnalytics();
+};
+$("selectNone").onclick=()=>{
+S.selected.clear();renderAnalytics();
+};
+$("saveNotebook").onclick=()=>{
+prefs.notebook=$("notebook").value;
+persist();toast("Notebook saved.");
+};
+$("themeToggle").onclick=()=>{
+prefs.theme=prefs.theme==="dark"?"light":"dark";
+applyTheme();persist();
+};
+$("theme").onchange=()=>{
+prefs.theme=$("theme").value;
+applyTheme();persist();
+};
+$("layout").value=prefs.layout;
+$("layout").onchange=()=>{
+prefs.layout=$("layout").value;
+S.layout=prefs.layout;
+persist();renderField();
+};
+$("backup").onclick=()=>{
+download("RaceIQ-personal-backup.json",JSON.stringify(prefs,null,2),"application/json");
+};
+$("restore").onclick=()=>$("importFile").click();
+$("importFile").onchange=async()=>{
+const file=$("importFile").files[0];
+if(!file)return;
+try{
+const data=JSON.parse(await file.text());
+if(!data||typeof data!=="object"||Array.isArray(data))throw Error("Invalid backup.");
+if(!confirm("Replace current personal data with this backup?"))return;
+prefs=normalizePrefs(data);
+S.layout=prefs.layout;
+$("layout").value=prefs.layout;
+persist();applyTheme();renderSaved();renderRecent();renderField();
+toast("Personal data restored.");
+}catch(e){toast("Unable to import backup.");}
+finally{$("importFile").value="";}
+};
+$("logout").onclick=clearSession;
+$("erase").onclick=()=>{
+if(!confirm("Permanently delete saved favorites, notes and preferences?"))return;
+prefs=defaults();
+S.layout=prefs.layout;
+persist();applyTheme();renderSaved();renderRecent();renderField();
+$("layout").value=prefs.layout;
+toast("Personal data deleted.");
+};
+$("checkBackend").onclick=async()=>{
+const root=$("diagnostics");
+root.replaceChildren();
+try{
+const j=await request("/",false);
+stat(root,"Frontend version",CONFIG.version);
+stat(root,"Backend version",j.version);
+stat(root,"Backend status",j.status);
+stat(root,"Configured",j.configured?"Yes":"No");
+}catch(e){stat(root,"Connection",e.message);}
+};
+/* INITIALIZATION */
+applyTheme();
+persist();
+renderUsage();
+renderRecent();
+renderCoverage();
+renderField();
+renderAnalytics();
+renderSaved();
+renderDirectory();
+stat($("diagnostics"),"Frontend version",CONFIG.version);
+stat($("diagnostics"),"Backend version","Not checked");
+navigate("home");
+</script>
+</body>
+</html>
